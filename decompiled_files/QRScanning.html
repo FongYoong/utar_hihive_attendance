@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale= 1.0, user-scalable=no">
+<title>Scan Hive</title>
+<style>
+.modalView
+{
+   position: fixed;
+   width: 100vw;
+   height: 100vh;
+   top: 0;
+   left: 0;
+   z-index: 999999;
+   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.spinner
+{
+   position: relative;
+   width: 100px;
+   height: 100px;
+   left: 50%;
+   top: 45%;
+   -webkit-transform: translate(-45%, -50%);
+   transform: translate(-45%, -50%);
+}
+
+.spinner div
+{
+   position: absolute;
+   width: 5%;
+   height: 16%;
+   left: 49%;
+   top: 43%;
+   background: #3d3d3d;
+   -webkit-animation: fade 1s linear infinite;
+}
+
+.myButton {
+   width: 160px;
+   margin: 8px 0px 8px 5px;
+   padding: 5px;
+   border:0px;
+   border-radius: 5px;
+   font-size: 15px;
+   font-weight: 700;
+   color: white;
+   background-color: #0E0941;
+   text-align: center;
+}
+
+.myButtonDisabled
+{
+   background-color: #5a6268;
+}
+
+@-webkit-keyframes fade
+{
+   from { opacity: 1; }
+   to { opacity: 0.25; }
+}
+
+.spinner div:nth-child(1)
+{
+   -webkit-transform:rotate(0deg) translate(0, -130%);
+   -webkit-animation-delay: 0s;
+}    
+
+.spinner div:nth-child(2)
+{
+   -webkit-transform:rotate(30deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.9167s;
+}
+
+.spinner div:nth-child(3)
+{
+   -webkit-transform:rotate(60deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.833s;
+}
+
+.spinner div:nth-child(4)
+{
+   -webkit-transform:rotate(90deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.7497s;
+}
+
+.spinner div:nth-child(5)
+{
+   -webkit-transform:rotate(120deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.667s;
+}
+
+.spinner div:nth-child(6)
+{
+   -webkit-transform:rotate(150deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.5837s;
+}
+
+.spinner div:nth-child(7)
+{
+   -webkit-transform:rotate(180deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.5s;
+}
+
+.spinner div:nth-child(8)
+{
+   -webkit-transform:rotate(210deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.4167s;
+}
+
+.spinner div:nth-child(9) 
+{
+   -webkit-transform:rotate(240deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.333s;
+}
+
+.spinner div:nth-child(10) 
+{
+   -webkit-transform:rotate(270deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.2497s;
+}
+
+.spinner div:nth-child(11) 
+{
+   -webkit-transform:rotate(300deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.167s;
+}
+
+.spinner div:nth-child(12) 
+{
+   -webkit-transform:rotate(330deg) translate(0, -130%); 
+   -webkit-animation-delay: -0.0833s;
+}
+
+input
+{
+   font-size: 16px;
+   background: transparent;
+   border: none;
+   border-radius: 0px;
+   border-bottom: 1px solid #000000;
+}
+
+input:focus
+{
+   outline: none;
+}
+
+input:read-only
+{
+   background: transparent;
+   border: none;
+   border-radius: 0px;
+   border-bottom: 1px dotted #000000;
+}
+
+button
+{
+   padding: 15px 60px;
+   border: none;
+   border-radius: 5px;
+   background-color: #4CAF50;
+   font-size: 16px;
+   font-weight: bold;
+   text-align: center;
+   color: white;
+}
+</style>
+</head>
+<body style="margin: 0; background: white;">
+<div id="divSpinner" class="modalView" style="display: none;"></div>
+<div id="divError" style="margin: 20px; font-size: 18px; display: none;">
+To take UTAR temperature recording, you need to onboard UTAR personalised community.<br/><br/>
+1. Navigate to UTAR main landing screen.<br/>
+2. Tap "Setting", the last icon on bottom menu.<br/>
+3. Tap "Personalised Community".<br/>
+4. Please swipe to left for locating UTAR personalised community.<br/>
+5. Tap UTAR logo to onboard.
+</div>
+<div id="divRecordContainer" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: white; auto; display: none; z-index: 200; ">
+   <div id="divRecord" style="position: absolute; width: 100%; height: 100%; padding-left: 10px; padding-right: 10px; text-align: center; font-size: 16px;"></div>
+</div>
+<div id="divOld" style="display: none;">
+<div id="divTR" style="width: 100%; display: none;">
+   <div id="divMain" style="padding: 5px; text-align: center; display: block; font-size: 18px; font-weight: bold;"></div>
+</div>
+   <center>
+      <div id="divLastRecord" style="width: 90%; margin-top: 10px; display: block;"></div>
+   </center>
+   <div id="divTRForm" style="width: 100; padding: 20px 30px 20px 30px; font-size: 16px; display: none;">
+      <div style="margin: 10px 0px 20px 0px; display: flex; flex-direction: column;">
+         <label style="margin-bottom: 10px; font-size: 16px; color: black; font-weight: bold;">Name</label>
+         <input id="txtName" type="text" value="" style="color: black;" readonly>
+      </div>
+      <div style="margin: 10px 0px 20px 0px; display: flex; flex-direction: column;">
+         <label style="margin-bottom: 10px; font-size: 16px; color: black; font-weight: bold;">Mobile Number</label>
+         <input id="txtMobileNumber" type="text" value="" style="color: black;" readonly>
+      </div>
+      <div style="margin: 10px 0px 20px 0px; display: flex; flex-direction: column;">
+         <label style="margin-bottom: 10px; font-size: 16px; color: black; font-weight: bold;">Email</label>
+         <input id="txtEmail" type="text" value="" style="color: black;" readonly>
+      </div>
+      <div id="divTemperature" style="margin: 10px 0px 20px 0px; display: flex; flex-direction: column;">
+         <label id="lblTemperature" style="margin-bottom: 10px; font-size: 16px; color: black; font-weight: bold;">Temperature</label>
+         <input id="txtValue" type="text" value="" inputmode="decimal" maxlength="5" onfocus="javascript: resetFormError();">
+      </div>
+      <!--
+      <div class="row">
+         <div class="input-field col s20">
+            <label class="active" for="txtRemark" style="font-size: 16px; color: black; font-weight: bold;">Remark</label>
+            <input id="txtRemark" class="validate" type="text" value=""  size="100" maxlength="100">
+         </div>
+      </div>
+      //-->
+   </div>
+   <div id="divTRError" style="width: 100; padding: 0px 20px 20px 10px; text-align: center; font-size: 16px; color: red; display: none;"></div>
+   <div id="divSubmit" style="position: relative; margin-top: 15px; width: 70%; left: 50%; transform: translate(-50%, -50%); text-align: center; display: none;">
+      <button onclick="javascript: submitForm();">Submit</button>
+   </div>
+   <div id="divRetrieveRecord" style="position: relative; margin-top: 30px; width: 70%; left: 50%; transform: translate(-50%, -50%); text-align: center; display: none;">
+      <button onclick="javascript: retrieveTemperatureHistoryRecord();">Retrieve Record</a>
+   </div>
+</div>
+<div id="divContainer" style="position: absolute; width: 90vw; height: 80vh; left: 50%; top: 35%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); display: none;">
+   <div id="divStatus" style="width: 100vw; height: 80vh; vertical-align: middle; display: table-cell; font-size: 5vw;"></div>
+</div>
+</div>
+<input id="txtCallBackData" type="hidden" value="" />
+<br/><br/>
+<script type="text/javascript">
+var g_strDisplayName = "NA", g_strEmail = "NA", g_strMobileNumber = "NA", g_strDeviceID = "NA", g_strSessionID = "NA", g_strGPSLocation = "NA";
+var g_strInternetStatus = "0", g_strRequestValue = "", g_strStoreType = "", g_strCommunityID = "NA", g_strThemeColor = "67B0D6";
+var g_intStage = 0;
+var g_blnUTARLocationQR = false;
+var g_blnVisitorRecording = false;
+var g_intVenueID = 0;
+var g_strVenue = "";
+
+function isAndroid()
+{
+   return navigator.userAgent.match(/android/i) != null;
+}
+
+function getNativeRequest(p_strRequestID)
+{
+   //if (isAndroid())
+   //{
+   //   MobileFunction.getField(p_strRequestID);
+   //}
+   //else
+   //{
+	  window.ReactNativeWebView.postMessage(p_strRequestID);
+//      window.webkit.messageHandlers.bridging.postMessage(p_strRequestID);
+   //}
+}
+
+function getJsonNativeRequest(p_strRequestData)
+{
+   //if (isAndroid())
+   //{
+   //   MobileFunction.getField(p_strRequestData);
+   //}
+   //else
+   //{
+	  window.ReactNativeWebView.postMessage(p_strRequestData);
+//      window.webkit.messageHandlers.dynamicService.postMessage(p_strRequestData);
+   //}
+}
+
+function nativeCallback(p_strRequestID, p_strValue)
+{
+   if (p_strRequestID == "1") // Get display name.
+   {
+      g_strDisplayName  = p_strValue;
+   }
+   else if (p_strRequestID == "2") // Get email.
+   {
+      g_strEmail =  p_strValue;
+   }
+   else if (p_strRequestID == "3") // Get mobile number.
+   {
+      g_strMobileNumber = p_strValue;
+   }
+   else if (p_strRequestID == "4") // Get device id.
+   {
+      g_strDeviceID = p_strValue;
+   }
+   else if (p_strRequestID == "5") // Get session.
+   {
+      g_strSessionID = p_strValue;
+   }
+   else if (p_strRequestID == "6") // Scan Hive backs to post.
+   {
+   }
+   else if (p_strRequestID == "7") // Turn on shake.
+   {
+   }
+   else if (p_strRequestID == "8") // Shake count.
+   {
+   }
+   else if (p_strRequestID == "9") // Turn off shake.
+   {
+   }
+   else if (p_strRequestID == "10") // Jailbreak checks.
+   {
+   }
+   else if (p_strRequestID == "11") // Get location.
+   {
+      processLocation(p_strValue);
+   }
+   else if (p_strRequestID == "12" || p_strRequestID == "43") // Scan Hive backs to previous screen.
+   {
+      //g_strRequestValue = p_strValue;
+      //getNativeRequest("13");
+      debug("Going to processQRData");
+      processQRData(p_strValue);
+   }
+   else if (p_strRequestID == "13") // Internet availability.
+   {
+      checkInternetConnectivity(p_strValue);
+   }
+   else if (p_strRequestID == "14") // Storage
+   {
+      document.getElementById("divContainer").style.display = "block";
+      document.getElementById("divStatus").innerHTML = "No Internet connectivity ! Scan Hive stored your QR data and will submit when Internet is available or in your next launch.";
+   }
+   else if (p_strRequestID == "15") // Delete storage
+   {
+
+   }
+   else if (p_strRequestID == "16") // Prompt
+   {
+   }
+   else if (p_strRequestID == "17") // Get value from config.
+   {
+   }
+   else if (p_strRequestID == "18") // Encrypt.
+   {
+      if (g_intStage == 1)
+      {
+         submitQR(p_strValue);
+      }
+      else if (g_intStage == 4)
+      {
+         prepareData(p_strValue);
+      }
+   }
+   else if (p_strRequestID == "19") // Decrypt.
+   {
+      if (g_intStage == 2)
+      {
+         g_intStage = 3;
+         prepareData(p_strValue);
+      }
+   }
+   else if (p_strRequestID == "23")
+   {
+      g_strCommunityID = p_strValue;
+   }
+   else if (p_strRequestID == "24")
+   {
+      g_strThemeColor = p_strValue;
+   }
+}
+
+function checkInternetConnectivity(p_strData)
+{
+   var l_strData;
+
+   if(p_strData == "1")
+   {
+      g_intStage = 1;
+   }
+   else
+   {
+      g_intStage = 2;
+   }
+
+debug("Internet: " + p_strData + ", " + g_intStage);
+
+   prepareData(g_strRequestValue);
+}
+
+function prepareData(p_strData)
+{
+debug("prepareData: " + p_strData);
+debug("g_intStage: " + g_intStage);
+
+   var l_strData;
+
+   if (g_intStage == 1)
+   {
+      l_strData = p_strData + "|" + g_strDeviceID + "|" + g_strSessionID + "|" +  g_strEmail + "|" + g_strDisplayName + "|" + g_strGPSLocation;
+      l_strData = '{"id": "18", "type": "K2", "data": "' + l_strData + '"}';
+      l_strData = '{"id": "18", "type": "K2", "data": "GvUe1xeXL8Xa42zdKd4W6Q==|c34cd013fa3d4eef82f7936c9c29d95a|a61e5beab11d4a5c83dfce28491fab68|wlw9832@gmail.com|Wong Lee Wei|3.099210702272778|101.41102598183224"}';
+   }
+   else if(g_intStage == 2)
+   {
+      l_strData = '{"id": "19", "type": "K2", "data": "' + p_strData + '"}';
+   }
+   else if (g_intStage == 3)
+   {
+      var l_arryStrData = p_strData.split("|");
+
+      g_intStage = 4;
+      g_strStoreType = l_arryStrData[0];
+      l_strData = g_strRequestValue + "|" + g_strDeviceID + "|" + g_strSessionID + "|" +  g_strEmail + "|" + g_strDisplayName + "|" + g_strGPSLocation;
+      l_strData = '{"id": "18", "type": "K2", "data": "' + l_strData + '"}';
+   }
+   else if(g_intStage == 4)
+   {
+          p_strData = replaceAll(p_strData, "+", ":-:");
+      l_strData = '{"id": "14", "type": "' + g_strStoreType + '", "data": "' + p_strData + '"}';
+   }
+
+debug("Prepare: " + l_strData + ", " + g_intStage);
+
+   getJsonNativeRequest(l_strData);
+}
+
+function processLocation(p_strData)
+{
+debug("processLocation: " + p_strData);
+
+   if (p_strData == "1")
+   {
+      p_strData = "NA";
+   }
+   g_strGPSLocation = p_strData;
+
+debug("Location: " + g_strGPSLocation);
+
+   getNativeRequest("13");
+}
+
+function scanStartEnd(p_intAction, p_intQREventID)
+{
+   document.getElementById("divContainer").style.display = "block";
+   //document.getElementById("divStatus").innerHTML = "<table><tr><td>Please wait...</td></tr></table>";
+
+   loadSpinner();
+
+   var l_strURL = "https://www.silverlakemobility.com/plugins/WebPlugIn?type=1-1&action=" + p_intAction + "&qrEventID=" + p_intQREventID;
+   var l_objAJAX = new XMLHttpRequest();
+
+   l_objAJAX.open('GET', l_strURL, true);
+
+   l_objAJAX.onload = function()
+   {
+      if (this.status == 200)
+      {
+         unloadSpinner();
+
+         document.getElementById("divStatus").innerHTML = this.response;
+      }
+   };
+
+   l_objAJAX.onerror = function()
+   {
+
+   };
+
+   l_objAJAX.send();
+}
+
+function submitQR(p_strData)
+{
+debug("Last encryption: " + p_strData);
+   document.getElementById("divContainer").style.display = "block";
+   //document.getElementById("divStatus").innerHTML = "<table><tr><td>Please wait...</td></tr></table>";
+
+   p_strData = replaceAll(p_strData, "+", ":-:");
+
+   loadSpinner();
+
+   var l_strURL = "https://www.silverlakemobility.com/plugins/WebPlugIn?type=1&data=" + p_strData;
+   var l_objAJAX = new XMLHttpRequest();
+
+   l_objAJAX.open('GET', l_strURL, true);
+
+   l_objAJAX.onload = function()
+   {
+      if (this.status == 200)
+      {
+         unloadSpinner();
+         
+         if (this.response.indexOf(":_:") > 0)
+         {
+
+         }
+         else
+         {
+           document.getElementById("divStatus").innerHTML = this.response;
+           debug("<br/>" + this.response);
+         }
+      }
+   };
+
+   l_objAJAX.onerror = function()
+   {
+
+   };
+
+   l_objAJAX.send();
+}
+
+function processQRData(p_strData)
+{
+   var l_arryStrData = p_strData.split(":*:");
+   var l_strType = l_arryStrData[0];
+   var l_strQR = l_arryStrData[1];
+
+debug("Type: " + l_strType);
+debug("QR: " + l_strQR);
+
+   if (p_strData.indexOf("78DSA") == 0 || p_strData.indexOf("78RGO") == 0 || p_strData.indexOf("78CEE") == 0)
+   {
+      g_strCommunityID = "78";
+      g_blnVisitorRecording = true;
+      processUTARVisitorRecording(p_strData);
+   }
+   else if (p_strData.indexOf("78") == 0)
+   {
+      g_strCommunityID = "78";
+      g_blnVisitorRecording = false;
+      processUTARTemperatureRecording(p_strData);
+   }
+   else if (p_strData.indexOf("887") == 0)
+   {
+      g_strCommunityID = "887";
+      processCTemperatureRecording(p_strData);
+   }
+   else if (p_strData.indexOf("95") == 0)
+   {
+      g_strCommunityID = "95";
+      g_blnVisitorRecording = true;
+      processCTemperatureRecording(p_strData);
+   }
+   else if (p_strData == "SHRG0012-A001-B0E1-980A-B70E2F55BBA1")
+   {
+      g_strCommunityID = "595";
+      g_blnVisitorRecording = true;
+      processCTemperatureRecording(p_strData);
+   }
+   else if (p_strData.indexOf("QRC") == 0)
+   {
+      g_strRequestValue = p_strData.substring(3, p_strData.length);
+      getNativeRequest("11");
+   }
+   else if (p_strData.indexOf("LQR") == 0)
+   {
+      g_strCommunityID = "78";
+      g_blnVisitorRecording = true;
+      processUTARVisitorRecording(p_strData);
+   }
+   else
+   {
+      document.getElementById("divContainer").style.display = "block";
+      document.getElementById("divStatus").innerHTML = "Scan Result: " + p_strData;
+
+
+   }
+}
+
+function debug(p_strData)
+{
+   //document.getElementById("divContainer").style.display = "block";
+   //document.getElementById("divStatus").innerHTML += p_strData + "<br/>";
+}
+
+function processCTemperatureRecording(p_strData)
+{
+   var l_divError = document.getElementById("divError");
+   var l_divTR = document.getElementById("divTR");
+   var l_divTRError = document.getElementById("divTRError");
+   var l_divSubmit = document.getElementById("divSubmit");
+   var l_divMain = document.getElementById("divMain");
+
+   loadSpinner();
+
+   document.getElementById("divOld").style.display = "block";
+   l_divError.style.display = "none";
+   l_divSubmit.style.display = "none";
+
+   if (p_strData == "887MBSB5-5754-4f48-80cf-70897223588a")
+   {
+      l_divMain.innerHTML = "<br/><br/>MBSB<br/>";
+   }
+   else if (p_strData == "887BKRM5-5754-4f48-80cf-70897223588a")
+   {
+      l_divMain.innerHTML = "<br/><br/>BKRM<br/>";
+   }
+   else if (p_strData == "95SLK899-1688-AB33-1789-76897553579A")
+   {
+      l_divMain.innerHTML = "<br/><br/>2A at Silverlake, KPMG<br/>";
+   }
+   else if (p_strData == "SHRG0012-A001-B0E1-980A-B70E2F55BBA1")
+   {
+      l_divMain.innerHTML = "<br/><br/>Share/Guide 3rd Annual General Meeting<br/>";
+   }
+
+   var l_strURL = "https://www.silverlakemobility.com/plugins/WebPlugIn?type=16&data=" + p_strData + "&email=" + g_strEmail + "&cmnt_id=" + g_strCommunityID;
+   var l_objAJAX = new XMLHttpRequest();
+
+   l_objAJAX.open('GET', l_strURL, true);
+
+   l_objAJAX.onload = function()
+   {
+      if (this.status == 200)
+      {
+      unloadSpinner();
+
+      var l_arryStrData = this.response.split(":*:");
+      var l_strStatus = l_arryStrData[0];
+
+      if (l_strStatus == "-1")
+      {
+         l_divError.style.display = "block";
+         l_divTR.style.display = "none";
+      }
+      else if (l_strStatus == "0")
+      {
+         l_divTRError.innerHTML = l_arryStrData[1];
+         l_divTRError.style.display = "block";
+      }
+      else if (l_strStatus == "1")
+      {
+         var l_strData = l_arryStrData[1];
+         var l_strLastRecord = l_arryStrData[2];
+         var l_divLastRecord = document.getElementById("divLastRecord");
+         var l_divTRForm = document.getElementById("divTRForm");
+         var l_txtCallBackData = document.getElementById("txtCallBackData");
+         var l_txtName = document.getElementById("txtName");
+         var l_txtEmail = document.getElementById("txtEmail");
+         var l_txtMobileNumber = document.getElementById("txtMobileNumber");
+         var l_arryStrForm = l_strData.split(":-:");
+
+         //1:*:78:-:LEE JIUN YIH:-:1706672:-:jiunyih98@1utar.my:-:SL:*:Last record was on 2020-06-02 09:57:27 with temperature of 36.3.
+
+         l_txtCallBackData.value = l_strData;
+         l_txtName.value = l_arryStrForm[1];
+         l_txtEmail.value = l_arryStrForm[3];
+         l_txtMobileNumber.value = l_arryStrForm[5];
+         l_divTRError.style.display = "none";
+         l_divTR.style.display = "block";
+         l_divTRForm.style.display = "block";
+         l_divSubmit.style.display = "block";
+
+         if (l_strLastRecord.length > 5)
+         {
+            l_divLastRecord.innerHTML = l_strLastRecord;
+            l_divLastRecord.style.display = "block";
+         }
+
+         M.updateTextFields();
+      }
+      }
+      else
+      {
+
+      }
+   };
+
+   l_objAJAX.onerror = function()
+   {
+
+   };
+
+   l_objAJAX.send();
+}
+
+function processUTARTemperatureRecording(p_strData)
+{
+   var l_divError = document.getElementById("divError");
+   var l_divTR = document.getElementById("divTR");
+   var l_divTRError = document.getElementById("divTRError");
+   var l_divSubmit = document.getElementById("divSubmit");
+   var l_divMain = document.getElementById("divMain");
+
+   document.getElementById("divOld").style.display = "block";
+
+   l_divError.style.display = "none";
+   l_divSubmit.style.display = "none";
+
+   if (p_strData == "78KPR448-a97a-11ea-bb37-0242ac130002")
+   {
+      l_divMain.innerHTML = "<br/><br/>UTAR Kampar<br/>";
+   }
+   else if (p_strData == "78CTC1e6-522a-46d5-8051-52fbf2b52e6c")
+   {
+      l_divMain.innerHTML = "<br/><br/>CTC1 at Pandan Mewah<br/>";
+   }
+   else if (p_strData == "78CTC2d5-5754-4f48-80cf-70897223588a")
+   {
+      l_divMain.innerHTML = "<br/><br/>CTC2 at Pandan Mewah<br/>";
+   }
+   else if (p_strData == "78SLKAe5-e666-4b23-ac81-1b725c45ffcf")
+   {
+      l_divMain.innerHTML = "<br/><br/>UTAR KA at Sg Long<br/>";
+   }
+   else if (p_strData == "78SLKBd3-4279-4db2-82f5-375b315b43ba")
+   {
+      l_divMain.innerHTML = "<br/><br/>UTAR KB at Sg Long<br/>";
+   }
+
+   var l_strURL = "https://www.silverlakemobility.com/plugins/WebPlugIn?type=13&data=" + p_strData + "&email=" + g_strEmail + "&cmnt_id=" + g_strCommunityID;
+   var l_objAJAX = new XMLHttpRequest();
+
+   loadSpinner();
+
+   l_objAJAX.open('GET', l_strURL, true);
+
+   l_objAJAX.onload = function()
+   {
+      if (this.status == 200)
+      {
+      unloadSpinner();
+      var l_arryStrData = this.response.split(":*:");
+      var l_strStatus = l_arryStrData[0];
+
+      if (l_strStatus == "-1")
+      {
+         l_divError.style.display = "block";
+         l_divTR.style.display = "none";
+      }
+      else if (l_strStatus == "0")
+      {
+         l_divTRError.innerHTML = l_arryStrData[1];
+         l_divTRError.style.display = "block";
+      }
+      else if (l_strStatus == "1")
+      {
+         var l_strData = l_arryStrData[1];
+         var l_strLastRecord = l_arryStrData[2];
+         var l_divLastRecord = document.getElementById("divLastRecord");
+         var l_divTRForm = document.getElementById("divTRForm");
+         var l_txtCallBackData = document.getElementById("txtCallBackData");
+         var l_txtName = document.getElementById("txtName");
+         var l_txtEmail = document.getElementById("txtEmail");
+         var l_txtMobileNumber = document.getElementById("txtMobileNumber");
+         var l_arryStrForm = l_strData.split(":-:");
+
+         //1:*:78:-:LEE JIUN YIH:-:1706672:-:jiunyih98@1utar.my:-:SL:*:Last record was on 2020-06-02 09:57:27 with temperature of 36.3.
+
+         l_txtCallBackData.value = l_strData;
+         l_txtName.value = l_arryStrForm[1];
+         l_txtEmail.value = l_arryStrForm[3];
+         l_txtMobileNumber.value = l_arryStrForm[5];
+         l_divTRError.style.display = "none";
+         l_divTR.style.display = "block";
+         l_divTRForm.style.display = "block";
+         l_divSubmit.style.display = "block";
+
+         if (l_strLastRecord.length > 5)
+         {
+            l_divLastRecord.innerHTML = l_strLastRecord;
+            l_divLastRecord.style.display = "block";
+         }
+
+         M.updateTextFields();
+      }
+      }
+      else
+      {
+
+      }
+   };
+
+   l_objAJAX.onerror = function()
+   {
+
+   };
+
+   l_objAJAX.send();
+}
+
+function processUTARVisitorRecording(p_strData)
+{
+   var l_divError = document.getElementById("divError");
+   var l_divTR = document.getElementById("divTR");
+   var l_divTRError = document.getElementById("divTRError");
+   var l_divSubmit = document.getElementById("divSubmit");
+   var l_divMain = document.getElementById("divMain");
+
+   document.getElementById("divOld").style.display = "block";
+   document.getElementById("divTemperature").style.display = "none";
+   l_divError.style.display = "none";
+   l_divSubmit.style.display = "none";
+   g_blnUTARLocationQR = true;
+   g_blnVisitorRecording = true;
+  
+   var l_strURL = "https://www.silverlakemobility.com/plugins/WebPlugIn?type=133&data=" + p_strData + "&email=" + g_strEmail + "&cmnt_id=" + g_strCommunityID;
+   var l_objAJAX = new XMLHttpRequest();
+
+   loadSpinner();
+
+   l_objAJAX.open('GET', l_strURL, true);
+
+   l_objAJAX.onload = function()
+   {
+      if (this.status == 200)
+      {
+      unloadSpinner();
+
+      var l_arryStrData = this.response.split(":*:");
+      var l_strStatus = l_arryStrData[0];
+
+      if (l_strStatus == "-1")
+      {
+         l_divError.style.display = "block";
+         l_divTR.style.display = "none";
+      }
+      else if (l_strStatus == "0")
+      {
+         l_divTRError.innerHTML = l_arryStrData[1];
+         l_divTRError.style.display = "block";
+      }
+      else if (l_strStatus == "1")
+      {
+         var l_strData = l_arryStrData[1];
+         var l_strLastRecord = l_arryStrData[2];
+         var l_divLastRecord = document.getElementById("divLastRecord");
+         var l_divTRForm = document.getElementById("divTRForm");
+         var l_txtCallBackData = document.getElementById("txtCallBackData");
+         var l_txtName = document.getElementById("txtName");
+         var l_txtEmail = document.getElementById("txtEmail");
+         var l_txtMobileNumber = document.getElementById("txtMobileNumber");
+         var l_objLblTemperature = document.getElementById("lblTemperature");
+         var l_arryStrForm = l_strData.split(":-:");
+
+         //1:*:78:-:LEE JIUN YIH:-:1706672:-:jiunyih98@1utar.my:-:SL:*:Last record was on 2020-06-02 09:57:27 with temperature of 36.3.
+         // g_blnVisitorRecording
+ //1:*:78:-:LEE JIUN YIH:-:1706672:-:jiunyih98@1utar.my:-::-:+60123857583:*:<br/><br/>:-:<b>Sg. Long Location QR<br/>Pathogen Lab 1<br/>KA 100 B, 1st Floor, KA Block</b><br/>
+
+         l_txtCallBackData.value = l_strData;
+         l_txtName.value = l_arryStrForm[1];
+         l_txtEmail.value = l_arryStrForm[3];
+         l_txtMobileNumber.value = l_arryStrForm[5];
+         l_divTRError.style.display = "none";
+         l_divTR.style.display = "block";
+         l_divTRForm.style.display = "block";
+         l_divSubmit.style.display = "block";
+
+         g_strVenue = l_arryStrData[3];
+         l_divMain.innerHTML = g_strVenue;
+         g_intVenueID = l_arryStrData[4];
+
+         if (l_strLastRecord.length > 5)
+         {
+            l_divLastRecord.innerHTML = l_strLastRecord;
+            l_divLastRecord.style.display = "block";
+         }
+
+      }
+      }
+      else
+      {
+
+      }
+   };
+
+   l_objAJAX.onerror = function()
+   {
+
+   };
+
+   l_objAJAX.send();
+
+}
+
+function escapeRegExp(p_strData)
+{
+   return p_strData.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+function replaceAll(p_strData, p_strFind, p_strReplace)
+{
+   return p_strData.replace(new RegExp(escapeRegExp(p_strFind), 'g'), p_strReplace);
+}
+
+function loadSpinner()
+{
+   var l_divSpinner = document.getElementById("divSpinner");
+
+   l_divSpinner.appendChild(document.createRange().createContextualFragment('<div class="spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>'));
+   l_divSpinner.style.display = "block";
+}
+
+function unloadSpinner()
+{
+   var l_divSpinner = document.getElementById("divSpinner");
+
+   l_divSpinner.innerHTML = "";
+   l_divSpinner.style.display = "none";
+}
+
+function processAndroidTest()
+{
+   MobileFunction.processTest("ok");
+}
+
+function processiOSTest()
+{
+   return "ok";
+}
+
+function initMe()
+{
+   getNativeRequest("1");
+   getNativeRequest("2");
+   getNativeRequest("3");
+   getNativeRequest("4");
+   getNativeRequest("5");
+   getNativeRequest("23");
+   getNativeRequest("12");
+   getNativeRequest("24");
+}
+
+
+
+
+function resetMe()
+{
+   var l_divTRError = document.getElementById("divTRError");
+   var l_divLastRecord = document.getElementById("divLastRecord");
+   var l_divTRForm = document.getElementById("divTRForm");
+   var l_divSubmit = document.getElementById("divSubmit");
+   var l_txtName = document.getElementById("txtName");
+   var l_txtEmail = document.getElementById("txtEmail");
+   var l_txtMobileNumber = document.getElementById("txtMobileNumber");
+   var l_txtValue = document.getElementById("txtValue");
+   //var l_txtRemark = document.getElementById("txtRemark");
+   var l_txtCallBackData = document.getElementById("txtCallBackData");
+
+   l_divTRError.innerHTML = "";
+   l_divTRError.style.color = "red";
+   l_divTRError.style.display = "none";
+
+   l_txtCallBackData.value = "";
+   l_txtName.value = "";
+   l_txtEmail.value = "";
+   l_txtMobileNumber.value = "";
+   l_txtValue.value = "";
+   //l_txtRemark.value = "";
+   l_divSubmit.style.display = "none";
+   l_divTRForm.style.display = "none";
+   l_divLastRecord.style.display = "none";
+}
+
+function submitForm()
+{
+   var l_divTRError = document.getElementById("divTRError");
+   var l_txtValue = document.getElementById("txtValue");
+   var l_strValue = l_txtValue.value;
+
+   l_divTRError.style.display = "block";
+
+   if (!g_blnVisitorRecording && l_strValue == "")
+   {
+      l_divTRError.innerHTML = "Please input Temperature";
+   }
+   else
+   {
+      var l_divLastRecord = document.getElementById("divLastRecord");
+      var l_divTRForm = document.getElementById("divTRForm");
+      var l_divSubmit = document.getElementById("divSubmit");
+      var l_txtCallBackData = document.getElementById("txtCallBackData");
+      //var l_txtRemark = document.getElementById("txtRemark");
+      var l_strType = "8";
+
+      if (g_blnUTARLocationQR)
+      {
+         l_strType = "155";
+      }
+      else if (g_strCommunityID == "78")
+      {
+         l_strType = "15";
+      }
+      else if (g_strCommunityID == "887" || g_strCommunityID == "95" || g_strCommunityID == "595")
+      {
+         l_strType = "17";
+      }
+
+      if (g_blnVisitorRecording && l_strValue == "")
+      {
+         l_strValue = "0.00";
+      }
+
+      if (g_blnUTARLocationQR)
+      {
+      var l_strURL = "https://www.silverlakemobility.com/plugins/WebPlugIn?type=" + l_strType + "&data=" + encodeURI(g_strVenue) + "&venueID=" + g_intVenueID + 
+                     "&email=" + g_strEmail;
+
+      }
+      else 
+      {
+      var l_strURL = "https://www.silverlakemobility.com/plugins/WebPlugIn?type=" + l_strType + "&data=" + encodeURI(l_txtCallBackData.value + ":-:" +
+                     l_strValue + ":-:" + "") + " :-:&email=" + g_strEmail;
+      }
+      
+
+      loadSpinner();
+
+      resetMe();
+
+      var l_objAJAX = new XMLHttpRequest();
+
+      l_objAJAX.open('GET', l_strURL, true);
+
+      l_objAJAX.onload = function()
+      {
+         if (this.status == 200)
+         {
+         unloadSpinner();
+
+         var l_arryStrData = this.response.split(":*:");
+         var l_strStatus = l_arryStrData[0];
+
+         if (l_strStatus == "0")
+         {
+            l_divTRError.innerHTML = l_arryStrData[1];
+            l_divTRError.style.display = "block";
+         }
+         else
+         {
+
+            if (!g_blnUTARLocationQR)
+            {
+               var l_txtName = document.getElementById("txtName");
+               var l_txtEmail = document.getElementById("txtEmail");
+
+               l_divTRError.innerHTML = l_arryStrData[1];
+               l_divTRError.style.color = "black";
+               l_divTRError.style.display = "block";
+               l_divSubmit.style.display = "none";
+               l_divTRForm.style.display = "none";
+               l_divLastRecord.style.display = "none";
+
+               if (g_strCommunityID == "78")
+               {
+                  document.getElementById("divRetrieveRecord").style.display = "block";
+               }
+               else if (g_strCommunityID == "595")
+               {
+                  document.getElementById("divRetrieveRecord").style.display = "none";
+               }
+            }
+            else
+            {
+            l_divTRError.innerHTML = l_arryStrData[1];
+            l_divTRError.style.color = "black";
+            l_divTRError.style.display = "block";
+            l_divSubmit.style.display = "none";
+            l_divTRForm.style.display = "none";
+            l_divLastRecord.style.display = "none";
+            }
+         }}
+      };
+
+      l_objAJAX.onerror = function()
+      {
+
+      };
+
+      l_objAJAX.send();
+   }
+}
+
+function retrieveTemperatureHistoryRecord()
+{
+   var l_strURL = "https://www.silverlakemobility.com/plugins/WebPlugIn?type=5&email=" + g_strEmail;
+   var l_objAJAX = new XMLHttpRequest();
+   
+   loadSpinner();
+
+   l_objAJAX.open('GET', l_strURL, true);
+
+   l_objAJAX.onload = function()
+   {
+      if (this.status == 200)
+      {
+         unloadSpinner();
+      var l_divRecordContainer = document.getElementById("divRecordContainer");
+      var l_divTR = document.getElementById("divTR");
+      var l_divRecord = document.getElementById("divRecord");
+      var l_arryStrData1 = this.response.split(":*:");
+
+      if (l_arryStrData1[0] == "0")
+      {
+         l_divRecord.style.paddingTop = "35%";
+         l_divRecord.innerHTML = "No record found !";
+      }
+      else
+      {
+         var l_strRecord = '<table width="100%" cellpadding="5px" align="center" style="font-size: 16px;">';
+         var l_arryStrData2;
+         var l_intSize = l_arryStrData1.length;
+
+         for (var l_intI = 1; l_intI < l_intSize; l_intI++)
+         {
+            l_arryStrData2 = l_arryStrData1[l_intI].split(":-:");
+
+            l_strRecord = l_strRecord + '   <tr>' +
+                           '      <td>Date / Time</td>' +
+                           '      <td>:</td>' +
+                           '      <td>' + l_arryStrData2[0] + '</td>' +
+                           '   </tr>' +
+                           '   <tr>' +
+                           '      <td>Community</td>' +
+                           '      <td>:</td>' +
+                           '      <td>' + l_arryStrData2[2] + '</td>' +
+                           '   </tr>' +
+                           '   <tr>' +
+                           '      <td>Value</td>' +
+                           '      <td>:</td>' +
+                           '      <td>' + l_arryStrData2[3] + '</td>' +
+                           '   </tr>';
+
+            if (l_arryStrData2.length == 5 && l_arryStrData2[4] != "")
+            {
+               l_strRecord = l_strRecord + '   <tr>' +
+                              '      <td>Remark</td>' +
+                              '      <td>:</td>' +
+                              '      <td>' + l_arryStrData2[4] + '</td>' +
+                              '   </tr>';
+            }
+
+            l_strRecord = l_strRecord + '   <tr>' +
+                           '      <td colspan="3"><br/></td>' +
+                           '   </tr>';
+
+         }
+
+         l_strRecord = l_strRecord + '</table>';
+         l_divRecord.innerHTML = l_strRecord;
+         l_divRecord.style.paddingTop = "0";
+      }
+
+      l_divRecordContainer.style.display = "block";
+      l_divTR.style.display = "none";
+
+      window.scrollTo(0,0);
+
+      }
+      else
+      {
+
+      }
+   };
+
+   l_objAJAX.onerror = function()
+   {
+
+   };
+
+   l_objAJAX.send();
+}
+
+function init()
+{
+   if (window.location.search.indexOf("FromHiveStore") > 0)
+   {
+     // getJsonNativeRequest('{"id": "25", "data": "goBack"}');
+   }
+
+   var l_arryButton = document.getElementsByTagName("button");
+
+   for (var l_intI = 0; l_intI < l_arryButton.length; l_intI++)
+   {
+      l_arryButton[l_intI].style.backgroundColor = g_strThemeColor;
+   }
+}
+
+window.onload = initMe(); 
+window.setTimeout(init, 500);
+</script>
+</body>
+</html>

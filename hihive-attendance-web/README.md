@@ -1,0 +1,1 @@
+This directory contains the source files of the [website](http://fongyoong8.github.io/utar-hihive-attendance).
