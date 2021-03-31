@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/utar-hihive-attendance/static/css/main.6f9bcce8.chunk.css",
-    "main.js": "/utar-hihive-attendance/static/js/main.bfb1f05d.chunk.js",
-    "main.js.map": "/utar-hihive-attendance/static/js/main.bfb1f05d.chunk.js.map",
-    "runtime-main.js": "/utar-hihive-attendance/static/js/runtime-main.b4a62db9.js",
-    "runtime-main.js.map": "/utar-hihive-attendance/static/js/runtime-main.b4a62db9.js.map",
-    "static/js/2.c3b915f2.chunk.js": "/utar-hihive-attendance/static/js/2.c3b915f2.chunk.js",
-    "static/js/2.c3b915f2.chunk.js.map": "/utar-hihive-attendance/static/js/2.c3b915f2.chunk.js.map",
-    "static/js/3.ba8627d4.chunk.js": "/utar-hihive-attendance/static/js/3.ba8627d4.chunk.js",
-    "static/js/3.ba8627d4.chunk.js.map": "/utar-hihive-attendance/static/js/3.ba8627d4.chunk.js.map",
-    "index.html": "/utar-hihive-attendance/index.html",
-    "static/css/main.6f9bcce8.chunk.css.map": "/utar-hihive-attendance/static/css/main.6f9bcce8.chunk.css.map",
-    "static/js/2.c3b915f2.chunk.js.LICENSE.txt": "/utar-hihive-attendance/static/js/2.c3b915f2.chunk.js.LICENSE.txt",
-    "static/media/sad.3dfb4ab6.png": "/utar-hihive-attendance/static/media/sad.3dfb4ab6.png"
+    "main.css": "/utar_hihive_attendance/static/css/main.6f9bcce8.chunk.css",
+    "main.js": "/utar_hihive_attendance/static/js/main.bfb1f05d.chunk.js",
+    "main.js.map": "/utar_hihive_attendance/static/js/main.bfb1f05d.chunk.js.map",
+    "runtime-main.js": "/utar_hihive_attendance/static/js/runtime-main.bbc28b13.js",
+    "runtime-main.js.map": "/utar_hihive_attendance/static/js/runtime-main.bbc28b13.js.map",
+    "static/js/2.c3b915f2.chunk.js": "/utar_hihive_attendance/static/js/2.c3b915f2.chunk.js",
+    "static/js/2.c3b915f2.chunk.js.map": "/utar_hihive_attendance/static/js/2.c3b915f2.chunk.js.map",
+    "static/js/3.ba8627d4.chunk.js": "/utar_hihive_attendance/static/js/3.ba8627d4.chunk.js",
+    "static/js/3.ba8627d4.chunk.js.map": "/utar_hihive_attendance/static/js/3.ba8627d4.chunk.js.map",
+    "index.html": "/utar_hihive_attendance/index.html",
+    "static/css/main.6f9bcce8.chunk.css.map": "/utar_hihive_attendance/static/css/main.6f9bcce8.chunk.css.map",
+    "static/js/2.c3b915f2.chunk.js.LICENSE.txt": "/utar_hihive_attendance/static/js/2.c3b915f2.chunk.js.LICENSE.txt",
+    "static/media/sad.3dfb4ab6.png": "/utar_hihive_attendance/static/media/sad.3dfb4ab6.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.b4a62db9.js",
+    "static/js/runtime-main.bbc28b13.js",
     "static/js/2.c3b915f2.chunk.js",
     "static/css/main.6f9bcce8.chunk.css",
     "static/js/main.bfb1f05d.chunk.js"
